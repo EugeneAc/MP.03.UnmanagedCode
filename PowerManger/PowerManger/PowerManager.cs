@@ -82,7 +82,7 @@ namespace PowerManager
         {
             SYSTEM_POWER_INFORMATION spi;
 
-            uint retval = CallPowerInformation.CallNtPowerInformation(
+            CallPowerInformation.CallNtPowerInformation(
                 12,
                 IntPtr.Zero,
                 0,
