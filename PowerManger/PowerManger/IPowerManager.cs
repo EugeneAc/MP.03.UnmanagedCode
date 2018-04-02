@@ -17,9 +17,9 @@
 
         void SetSleepState();
 
-        double ReserveHyberFile();
+        bool ReserveHyberFile();
 
-        double FreeHybernatoinFile();
+        bool FreeHybernatoinFile();
 
     }
 }

@@ -13,18 +13,26 @@ namespace PowerManager
     [ClassInterface(ClassInterfaceType.None)]
     public class PowerManager : IPowerManager
     {
+        private const uint StatusSuccess = 0;
+
+        /// <summary>
+        /// The get last sleep time.
+        /// </summary>
+        /// <returns>
+        /// returns time interval in 100-nanoseconds units, at the last system sleep time
+        /// </returns>
         public double GetLastSleepTime()
         {
             var t = Marshal.SizeOf(typeof(ulong));
-            uint statusSuccess = 0;
             ulong retvalue;
+
             uint callsuccess = CallPowerInformation.CallNtPowerInformation(
                 15, 
                 IntPtr.Zero, 
                 0, 
                 out retvalue, 
                 t);
-            if (callsuccess == statusSuccess)
+            if (callsuccess == StatusSuccess)
             {
                 return (double)retvalue; // VBA only supports Double
             }
@@ -32,20 +40,26 @@ namespace PowerManager
             return 0;
         }
 
+        /// <summary>
+        /// The get last wake time.
+        /// </summary>
+        /// <returns>
+        /// returns time interval in 100-nanosecond units, at the last system wake time 
+        /// </returns>
         public double GetLastWakeTime()
         {
-            uint statusSuccess = 0;
             ulong retvalue;
+
             uint callsuccess = CallPowerInformation.CallNtPowerInformation(
                 14, 
                 IntPtr.Zero, 
                 0, 
                 out retvalue, 
                 Marshal.SizeOf(typeof(ulong)));
-            if (callsuccess == statusSuccess)
+            if (callsuccess == StatusSuccess)
             {
                 return (double)retvalue; // VBA only supports Double
-      }
+            }
 
             return 0;
         }
@@ -54,18 +68,18 @@ namespace PowerManager
         {
             SYSTEM_BATTERY_STATE sbs;
 
-            uint status = CallPowerInformation.CallNtPowerInformation(
+            CallPowerInformation.CallNtPowerInformation(
                 5,
                 IntPtr.Zero,
                 0,
                 out sbs,
                 Marshal.SizeOf(typeof(SYSTEM_BATTERY_STATE)));
+
            return sbs;
         }
 
         public SYSTEM_POWER_INFORMATION GetSystemPowerInformation()
         {
-            uint statusSuccess = 0;
             SYSTEM_POWER_INFORMATION spi;
 
             uint retval = CallPowerInformation.CallNtPowerInformation(
@@ -74,10 +88,6 @@ namespace PowerManager
                 0,
                 out spi,
                 Marshal.SizeOf(typeof(SYSTEM_POWER_INFORMATION)));
-            if (retval == statusSuccess)
-            {
-                return spi;
-            }
 
             return spi;
         }
@@ -87,28 +97,28 @@ namespace PowerManager
             CallPowerInformation.SetSuspendState(false, false, false);
         }
 
-        public double ReserveHyberFile()
+        public bool ReserveHyberFile()
         {
             int size = Marshal.SizeOf(typeof(byte));
             var pBool = Marshal.AllocHGlobal(size);
-            var outpBool = Marshal.AllocHGlobal(size);
             Marshal.WriteByte(pBool, 0, 1);  // last parameter 0 (FALSE), 1 (TRUE)
 
             uint retval = CallPowerInformation.CallNtPowerInformation(
                 10,
                 pBool,
-                0,
-                out outpBool,
-                    size);
-
-            IntPtr outParam = IntPtr.Zero;
-            uint retvalFyodor = CallPowerInformation.CallNtPowerInformation(10, pBool, Marshal.SizeOf(typeof(bool)), out outParam, 0);
-
+                Marshal.SizeOf(typeof(bool)),
+                out pBool,
+                    0);
             Marshal.FreeHGlobal(pBool);
-            return retval;
+            if (retval == StatusSuccess)
+            {
+                return true;
+            }
+
+            return false;
         }
 
-        public double FreeHybernatoinFile()
+        public bool FreeHybernatoinFile()
         {
             int size = Marshal.SizeOf(typeof(byte));
             var pBool = Marshal.AllocHGlobal(size);
@@ -117,11 +127,16 @@ namespace PowerManager
             uint retval = CallPowerInformation.CallNtPowerInformation(
                 10,
                 pBool,
-                0,
+                Marshal.SizeOf(typeof(bool)),
                 out pBool,
-                size);
+                0);
             Marshal.FreeHGlobal(pBool);
-            return retval;
+            if (retval == StatusSuccess)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
