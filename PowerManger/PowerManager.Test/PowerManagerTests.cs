@@ -8,15 +8,16 @@
   public class PowerManagerTests
   {
     PowerManager _manager;
+
     [TestInitialize]
     public void Initialize()
     {
       _manager = new PowerManager();
     }
+
     [TestMethod]
       public void TestGetPowerInfo()
     {
-
       var powerinfo = _manager.GetSystemPowerInformation();
       Assert.IsTrue((uint)powerinfo.Idleness>0);
       Console.WriteLine("TimeRemaining " + powerinfo.TimeRemaining);
@@ -28,7 +29,6 @@
     [TestMethod]
     public void TestGetLastSleepTime()
     {
-
       var retvalue = _manager.GetLastSleepTime();
       Assert.IsTrue(retvalue!=0);
       Console.WriteLine(retvalue);
@@ -45,7 +45,6 @@
     [TestMethod]
     public void TestGetBatteryState()
     {
-
       var batteryState = _manager.GetBatteryState();
       Assert.IsTrue(batteryState.AcOnLine);
       Console.WriteLine("AcOnLine " + batteryState.AcOnLine);
@@ -67,7 +66,6 @@
     [TestMethod]
     public void TestReserveHybernationFile()
     {
-
       var filesize = _manager.ReserveHyberFile();
       Assert.IsTrue(filesize > 0);
       Console.WriteLine(filesize);

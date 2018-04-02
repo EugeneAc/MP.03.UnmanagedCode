@@ -91,14 +91,19 @@ namespace PowerManager
         {
             int size = Marshal.SizeOf(typeof(byte));
             var pBool = Marshal.AllocHGlobal(size);
+            var outpBool = Marshal.AllocHGlobal(size);
             Marshal.WriteByte(pBool, 0, 1);  // last parameter 0 (FALSE), 1 (TRUE)
 
             uint retval = CallPowerInformation.CallNtPowerInformation(
                 10,
                 pBool,
                 0,
-                out pBool,
+                out outpBool,
                     size);
+
+            IntPtr outParam = IntPtr.Zero;
+            uint retvalFyodor = CallPowerInformation.CallNtPowerInformation(10, pBool, Marshal.SizeOf(typeof(bool)), out outParam, 0);
+
             Marshal.FreeHGlobal(pBool);
             return retval;
         }
